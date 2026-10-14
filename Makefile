@@ -25,12 +25,21 @@ build: $(SRC) $(COPYDIR)/ACCTREC.cpy
 run: build
 	cp $(INPUT) build/ACCTIN
 	cd build && ./$(BIN)
+	@echo "--- INTCALC finished; locating output ---"
+	@ls -l build || true
 	mv build/RPTOUT $(ACTUAL)
 
 verify: run
-	@echo "Comparing $(ACTUAL) with $(EXPECTED)..."
-	@diff -u $(EXPECTED) $(ACTUAL) && echo "PASS: output matches baseline" \
-		|| (echo "FAIL: output differs from baseline" && exit 1)
+	@echo "===== EXPECTED ($(EXPECTED)) ====="
+	@cat -A $(EXPECTED) || true
+	@echo "===== ACTUAL ($(ACTUAL)) ====="
+	@cat -A $(ACTUAL) || true
+	@echo "===== DIFF (expected vs actual) ====="
+	@if diff -u -b $(EXPECTED) $(ACTUAL); then \
+		echo "PASS: output matches baseline"; \
+	else \
+		echo "FAIL: output differs from baseline"; exit 1; \
+	fi
 
 clean:
 	rm -rf build

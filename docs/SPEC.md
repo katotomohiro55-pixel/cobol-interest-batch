@@ -82,3 +82,11 @@ Fixed-length, 60 bytes per record, LINE SEQUENTIAL.
 | ACC0000010 | O | 500 | 7 | 0.0010 | 0 | rounds down to zero |
 
 Totals: **10 records**, interest total **312,710**.
+
+## Note on output format
+
+The report is written with `ORGANIZATION IS LINE SEQUENTIAL`. GnuCOBOL trims
+trailing spaces from each written line, so `expected_output.dat` stores each
+record without trailing padding (the logical record is still 60 bytes). The
+CI comparison uses `diff -b` so trailing-whitespace differences never cause a
+false failure — only the data content is compared.
