@@ -33,13 +33,14 @@ public class TrailerRecord {
     }
 
     /**
-     * Formats the trailer record as a fixed 60-byte line.
-     * Layout: "TRAILER  " (9) + record count (7) + space + interest total (13) + spaces (30)
+     * Formats the trailer record.
+     * Layout: "TRAILER  " (9) + record count (7) + space + interest total (13)
+     * Note: No trailing spaces to match GnuCOBOL behavior.
      */
     public String toFixedFormat() {
-        StringBuilder sb = new StringBuilder(60);
+        StringBuilder sb = new StringBuilder();
         
-        // Literal "TRAILER  " (9 chars)
+        // Literal "TRAILER  " (9 chars: TRAILER + 2 spaces)
         sb.append("TRAILER  ");
         
         // Record count (7 chars, zero-padded)
@@ -50,11 +51,6 @@ public class TrailerRecord {
         
         // Interest total (13 chars, zero-padded)
         sb.append(String.format("%013d", interestTotal));
-        
-        // Filler (30 spaces)
-        while (sb.length() < 60) {
-            sb.append(' ');
-        }
         
         return sb.toString();
     }

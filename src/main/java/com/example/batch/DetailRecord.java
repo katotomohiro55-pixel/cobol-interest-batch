@@ -57,6 +57,7 @@ public class DetailRecord {
     /**
      * Formats the detail record as a fixed 60-byte line.
      * Layout: Account ID (10) + space + Type (1) + space + Rate (6) + space + Interest (11) + spaces (29)
+     * Note: Trailing spaces are trimmed to match GnuCOBOL behavior.
      */
     public String toFixedFormat() {
         StringBuilder sb = new StringBuilder(60);
@@ -87,6 +88,7 @@ public class DetailRecord {
             sb.append(' ');
         }
         
-        return sb.toString();
+        // Trim trailing spaces to match GnuCOBOL behavior
+        return sb.toString().trim();
     }
 }
