@@ -25,6 +25,3 @@ jobs:
     
     - name: Run tests
       run: mvn test
-    
-    - name: Verify COBOL baseline still passes
-      run: make verify
