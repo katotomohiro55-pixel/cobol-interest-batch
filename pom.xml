@@ -11,66 +11,20 @@
     <packaging>jar</packaging>
 
     <name>COBOL Interest Batch Migration</name>
-    <description>Java 17 / Spring Batch migration of COBOL interest calculation</description>
+    <description>Java 17 migration of COBOL interest calculation</description>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
         <maven.compiler.target>17</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <spring.batch.version>5.1.0</spring.batch.version>
-        <spring.framework.version>6.1.0</spring.framework.version>
     </properties>
 
     <dependencies>
-        <!-- Spring Batch -->
-        <dependency>
-            <groupId>org.springframework.batch</groupId>
-            <artifactId>spring-batch-core</artifactId>
-            <version>${spring.batch.version}</version>
-        </dependency>
-
-        <!-- Spring Context -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.framework.version}</version>
-        </dependency>
-
-        <!-- Spring JDBC -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-jdbc</artifactId>
-            <version>${spring.framework.version}</version>
-        </dependency>
-
-        <!-- H2 Database (in-memory for Spring Batch job repository) -->
-        <dependency>
-            <groupId>com.h2database</groupId>
-            <artifactId>h2</artifactId>
-            <version>2.2.224</version>
-        </dependency>
-
         <!-- JUnit 5 -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter</artifactId>
             <version>5.10.1</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Spring Batch Test -->
-        <dependency>
-            <groupId>org.springframework.batch</groupId>
-            <artifactId>spring-batch-test</artifactId>
-            <version>${spring.batch.version}</version>
-            <scope>test</scope>
-        </dependency>
-
-        <!-- Spring Test -->
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-test</artifactId>
-            <version>${spring.framework.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -90,18 +44,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
                 <version>3.2.2</version>
-            </plugin>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>repackage</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

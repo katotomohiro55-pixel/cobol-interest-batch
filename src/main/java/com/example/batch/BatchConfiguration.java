@@ -1,73 +1,86 @@
 package com.example.batch;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.Step;
-import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
-import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
-import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
-import org.springframework.batch.core.launch.support.RunIdIncrementer;
-import org.springframework.batch.core.repository.JobRepository;
-import org.springframework.batch.core.repository.support.JobRepositoryFactoryBean;
-import org.springframework.batch.support.transaction.ResourcelessTransactionManager;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.transaction.PlatformTransactionManager;
-
-import javax.sql.DataSource;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
- * Spring Batch configuration for the interest calculation job.
+ * Simple batch processor for interest calculation without Spring Batch.
+ * Reads accounts.dat, calculates interest, and writes output file.
  */
-@Configuration
-@EnableBatchProcessing
 public class BatchConfiguration {
     
-    private final JobBuilderFactory jobBuilderFactory;
-    private final StepBuilderFactory stepBuilderFactory;
+    private final InterestCalculator calculator = new InterestCalculator();
     
-    public BatchConfiguration(JobBuilderFactory jobBuilderFactory, 
-                              StepBuilderFactory stepBuilderFactory) {
-        this.jobBuilderFactory = jobBuilderFactory;
-        this.stepBuilderFactory = stepBuilderFactory;
+    public void run(String inputFile, String outputFile) throws IOException {
+        // Read input
+        List<AccountRecord> accounts = readInputFile(inputFile);
+        
+        // Process and write output
+        writeOutputFile(accounts, outputFile);
     }
     
-    @Bean
-    public Job interestCalculationJob(Step calculateInterestStep) {
-        return jobBuilderFactory.get("interestCalculationJob")
-                .incrementer(new RunIdIncrementer())
-                .start(calculateInterestStep)
-                .build();
+    private List<AccountRecord> readInputFile(String filePath) throws IOException {
+        List<AccountRecord> records = new ArrayList<>();
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (line.length() >= 33) {
+                    String accountId = line.substring(0, 10).trim();
+                    char accountType = line.charAt(10);
+                    String balanceStr = line.substring(11, 24).trim();
+                    BigDecimal balance = new BigDecimal(balanceStr).divide(new BigDecimal("100"));
+                    String termDaysStr = line.substring(24, 28).trim();
+                    int termDays = Integer.parseInt(termDaysStr);
+                    String rateOverrideStr = line.substring(28, 33).trim();
+                    BigDecimal rateOverride = new BigDecimal(rateOverrideStr);
+                    
+                    records.add(new AccountRecord(accountId, accountType, balance, termDays, rateOverride));
+                }
+            }
+        }
+        
+        return records;
     }
     
-    @Bean
-    public Step calculateInterestStep(AccountItemReader reader,
-                                      InterestCalculationProcessor processor,
-                                      ReportItemWriter writer) {
-        return stepBuilderFactory.get("calculateInterestStep")
-                .<AccountRecord, DetailRecord>chunk(10)
-                .reader(reader)
-                .processor(processor)
-                .writer(writer)
-                .build();
-    }
-    
-    @Bean
-    public AccountItemReader reader() {
-        return new AccountItemReader("data/accounts.dat");
-    }
-    
-    @Bean
-    public InterestCalculationProcessor processor() {
-        return new InterestCalculationProcessor();
-    }
-    
-    @Bean
-    public ReportItemWriter writer() {
-        return new ReportItemWriter("output/java_output.dat");
-    }
-    
-    @Bean
-    public PlatformTransactionManager transactionManager() {
-        return new ResourcelessTransactionManager();
+    private void writeOutputFile(List<AccountRecord> accounts, String outputPath) throws IOException {
+        Path path = Paths.get(outputPath);
+        Files.createDirectories(path.getParent());
+        
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(outputPath))) {
+            long totalInterest = 0;
+            
+            // Write detail records
+            for (AccountRecord account : accounts) {
+                BigDecimal appliedRate = calculator.calculateAppliedRate(account);
+                long interestYen = calculator.calculateInterestYen(account);
+                
+                DetailRecord detail = new DetailRecord(
+                    account.getAccountId(),
+                    account.getAccountType(),
+                    appliedRate,
+                    interestYen
+                );
+                
+                writer.write(detail.toFixedFormat());
+                writer.newLine();
+                
+                totalInterest += interestYen;
+            }
+            
+            // Write trailer
+            TrailerRecord trailer = new TrailerRecord(accounts.size(), totalInterest);
+            writer.write(trailer.toFixedFormat());
+            writer.newLine();
+        }
     }
 }

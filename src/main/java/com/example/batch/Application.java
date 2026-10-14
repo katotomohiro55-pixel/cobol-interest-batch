@@ -1,11 +1,6 @@
 package com.example.batch;
 
-import org.springframework.batch.core.Job;
-import org.springframework.batch.core.JobExecution;
-import org.springframework.batch.core.JobParameters;
-import org.springframework.batch.core.JobParametersBuilder;
-import org.springframework.batch.core.launch.JobLauncher;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
+import java.io.IOException;
 
 /**
  * Main application to run the interest calculation batch job.
@@ -13,25 +8,13 @@ import org.springframework.context.annotation.AnnotationConfigApplicationContext
 public class Application {
     
     public static void main(String[] args) {
-        try (AnnotationConfigApplicationContext context = 
-                new AnnotationConfigApplicationContext(BatchConfiguration.class)) {
+        try {
+            BatchConfiguration batch = new BatchConfiguration();
+            batch.run("data/accounts.dat", "output/java_output.dat");
             
-            JobLauncher jobLauncher = context.getBean(JobLauncher.class);
-            Job job = context.getBean(Job.class);
-            
-            JobParameters jobParameters = new JobParametersBuilder()
-                    .addLong("time", System.currentTimeMillis())
-                    .toJobParameters();
-            
-            JobExecution execution = jobLauncher.run(job, jobParameters);
-            
-            System.out.println("Job Status: " + execution.getStatus());
-            System.out.println("Exit Status: " + execution.getExitStatus());
-            
-            if (execution.getStatus().isUnsuccessful()) {
-                System.exit(1);
-            }
-        } catch (Exception e) {
+            System.out.println("Batch completed successfully");
+            System.out.println("Output written to: output/java_output.dat");
+        } catch (IOException e) {
             e.printStackTrace();
             System.exit(1);
         }
