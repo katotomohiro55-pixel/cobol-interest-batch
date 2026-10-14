@@ -1,0 +1,38 @@
+name: COBOL baseline (Before)
+
+# Proves the legacy INTCALC batch compiles and reproduces the committed
+# baseline output. This is the "Before" evidence for the migration demo:
+# the Java port must later reproduce the same data/expected_output.dat.
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  cobol-baseline:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install GnuCOBOL
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y gnucobol
+
+      - name: Show cobc version
+        run: cobc --version
+
+      - name: Build
+        run: make build
+
+      - name: Run and verify against baseline
+        run: make verify
+
+      - name: Upload actual output
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: report
+          path: build/report.dat
