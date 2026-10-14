@@ -6,10 +6,11 @@
 #   make clean   remove build artefacts
 
 COBC      ?= cobc
-COBFLAGS  ?= -x -std=default -free=fixed
+# -x: build an executable program; -fixed: source is fixed-format COBOL.
+COBFLAGS  ?= -x -fixed
 SRC       := src/cobol/INTCALC.cbl
 COPYDIR   := src/cobol
-BIN       := build/INTCALC
+BIN       := INTCALC
 INPUT     := data/accounts.dat
 EXPECTED  := data/expected_output.dat
 ACTUAL    := build/report.dat
@@ -19,12 +20,11 @@ all: verify
 
 build: $(SRC) $(COPYDIR)/ACCTREC.cpy
 	mkdir -p build
-	$(COBC) $(COBFLAGS) -I$(COPYDIR) -o $(BIN) $(SRC)
+	$(COBC) $(COBFLAGS) -I$(COPYDIR) -o build/$(BIN) $(SRC)
 
 run: build
-	mkdir -p build
 	cp $(INPUT) build/ACCTIN
-	cd build && ./INTCALC
+	cd build && ./$(BIN)
 	mv build/RPTOUT $(ACTUAL)
 
 verify: run

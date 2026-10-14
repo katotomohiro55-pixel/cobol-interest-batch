@@ -2,11 +2,10 @@
       * ACCTREC.cpy  -  Account master record layout (fixed length)    *
       * Record length: 60 bytes.  Used by INTCALC batch.               *
       *                                                                *
-      * The master file is a fixed-length LINE SEQUENTIAL file whose    *
-      * numeric fields are stored as zoned DISPLAY (external) decimals  *
-      * so the extract is portable across environments.  Internal       *
-      * interest math in INTCALC uses COMP-3, as on the original GS21   *
-      * asset.                                                          *
+      * Fixed-length LINE SEQUENTIAL file. Numeric fields are stored *
+      * as zoned DISPLAY (external) decimals for portability. *
+      * Internal interest math in INTCALC uses COMP-3, as on the *
+      * original GS21 asset. *
       ******************************************************************
        01  ACCOUNT-RECORD.
            05  AR-ACCOUNT-ID          PIC X(10).
