@@ -137,7 +137,7 @@ public class OutputEquivalenceTest {
                     String termDaysStr = line.substring(24, 28).trim();
                     int termDays = Integer.parseInt(termDaysStr);
                     String rateOverrideStr = line.substring(28, 33).trim();
-                    BigDecimal rateOverride = new BigDecimal(rateOverrideStr);
+                    BigDecimal rateOverride = new BigDecimal(rateOverrideStr).divide(new BigDecimal("10000"));
                     
                     records.add(new AccountRecord(accountId, accountType, balance, termDays, rateOverride));
                 }

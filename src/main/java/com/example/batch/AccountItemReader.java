@@ -36,8 +36,9 @@ public class AccountItemReader {
         int termDays = Integer.parseInt(termDaysStr);
         
         // Rate override: positions 28-32 (0-indexed: 28-32), which is 6 chars for 9(01)V9(04)
+        // Format: 5 digits with 4 implied decimals (e.g., "00030" = 0.0030)
         String rateOverrideStr = line.substring(28, 33).trim();
-        BigDecimal rateOverride = new BigDecimal(rateOverrideStr);
+        BigDecimal rateOverride = new BigDecimal(rateOverrideStr).divide(new BigDecimal("10000"));
         
         return new AccountRecord(accountId, accountType, balance, termDays, rateOverride);
     }
